@@ -8,19 +8,65 @@
 
 void l1_normalize(image im)
 {
-    // TODO
+    for (int c = 0; c < im.c; c++) {
+        for (int y = 0; y < im.h; y++) {
+            for (int x = 0; x < im.w; x++) {
+                set_pixel(im,x,y,c,get_pixel(im,x,y,c)/(1.0*im.w*im.h));
+            }
+        }
+    }
 }
 
 image make_box_filter(int w)
 {
-    // TODO
-    return make_image(1,1,1);
+    image bf = make_image(w,w,1);
+    for (int c = 0; c < bf.c; c++) {
+        for (int y = 0; y < bf.h; y++) {
+            for (int x = 0; x < bf.w; x++) {
+                set_pixel(bf,x,y,c,1.0);
+            }
+        }
+    }
+    l1_normalize(bf);
+    return bf;
 }
 
 image convolve_image(image im, image filter, int preserve)
 {
-    // TODO
-    return make_image(1,1,1);
+    assert(filter.c == im.c || filter.c == 1);
+
+    image cim = (preserve == 1) ? make_image(im.w,im.h,im.c) : make_image(im.w,im.h,filter.c);
+
+    for (int x = 0; x < cim.w; x++) {
+        for (int y = 0; y < cim.h; y++) {
+            if (preserve == 1) {
+                for (int c = 0; c < cim.c; c++) {
+                    int fc = (filter.c > 1) ? c : 0;
+                    float q = 0;
+                    for (int fx = 0; fx < filter.w; fx++) {
+                        for (int fy = 0; fy < filter.h; fy++) {
+
+                            q += get_pixel(filter,fx,fy,fc) * get_pixel(im,x-(filter.w/2)+fx,y-(filter.h/2)+fy,c);
+                        }
+                    }
+                    set_pixel(cim,x,y,c,q);
+                }
+            } else {
+                float q = 0;
+                for (int c = 0; c < im.c; c++) {
+                    int fc = (filter.c > 1) ? c : 0;
+                    for (int fx = 0; fx < filter.w; fx++) {
+                        for (int fy = 0; fy < filter.h; fy++) {
+                            q += get_pixel(filter,fx,fy,fc) * get_pixel(im,x-(filter.w/2)+fx,y-(filter.h/2)+fy,c);
+                        }
+                    }
+                }
+                set_pixel(cim,x,y,0,q);
+            }
+        }
+    }
+
+    return cim;
 }
 
 image make_highpass_filter()
