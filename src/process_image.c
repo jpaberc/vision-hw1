@@ -118,13 +118,8 @@ void rgb_to_hsv(image im)
 
 void hsv_to_rgb(image im)
 {
-    float H,S,V,C,X,m;
+    float H,S,V,C,m;
     float r,g,b;
-
-    int hcount = 0;
-    int scount = 0;
-    int vcount = 0;
-
 
     for (int y = 0; y < im.h; y++) {
         for (int x = 0; x < im.w; x++) {
@@ -138,7 +133,6 @@ void hsv_to_rgb(image im)
 
 
             if (S == 0) {
-                scount++;
                 r = V;
                 g = V;
                 b = V;
@@ -167,7 +161,7 @@ void hsv_to_rgb(image im)
                 b = V;
                 g = m;
                 r = C*(H-4) + g;
-            } else if (H > 5) {
+            } else {
                 // R is max, B > G
                 H = H - 6;
                 r = V;
