@@ -61,7 +61,12 @@ image convolve_image(image im, image filter, int preserve)
                         }
                     }
                 }
-                set_pixel(cim,x,y,0,q);
+                if (filter.c == im.c) {
+                    set_pixel(cim,x,y,0,q);
+                }
+                else {
+                    set_pixel(cim,x,y,0,q/im.c);
+                }
             }
         }
     }
@@ -71,24 +76,53 @@ image convolve_image(image im, image filter, int preserve)
 
 image make_highpass_filter()
 {
-    // TODO
-    return make_image(1,1,1);
+    image f = make_box_filter(3);
+    set_pixel(f,0,0,0,0);
+    set_pixel(f,1,0,0,-1);
+    set_pixel(f,2,0,0,0);
+    set_pixel(f,0,1,0,-1);
+    set_pixel(f,1,1,0,4);
+    set_pixel(f,2,1,0,-1);
+    set_pixel(f,0,2,0,0);
+    set_pixel(f,1,2,0,-1);
+    set_pixel(f,2,2,0,0);
+    return f;
 }
 
 image make_sharpen_filter()
 {
-    // TODO
-    return make_image(1,1,1);
+    image f = make_box_filter(3);
+    set_pixel(f,0,0,0,0);
+    set_pixel(f,1,0,0,-1);
+    set_pixel(f,2,0,0,0);
+    set_pixel(f,0,1,0,-1);
+    set_pixel(f,1,1,0,5);
+    set_pixel(f,2,1,0,-1);
+    set_pixel(f,0,2,0,0);
+    set_pixel(f,1,2,0,-1);
+    set_pixel(f,2,2,0,0);
+    return f;
 }
 
 image make_emboss_filter()
 {
-    // TODO
-    return make_image(1,1,1);
+    image f = make_box_filter(3);
+    set_pixel(f,0,0,0,-2);
+    set_pixel(f,1,0,0,-1);
+    set_pixel(f,2,0,0,0);
+    set_pixel(f,0,1,0,-1);
+    set_pixel(f,1,1,0,1);
+    set_pixel(f,2,1,0,1);
+    set_pixel(f,0,2,0,0);
+    set_pixel(f,1,2,0,1);
+    set_pixel(f,2,2,0,2);
+    return f;
 }
 
 // Question 2.2.1: Which of these filters should we use preserve when we run our convolution and which ones should we not? Why?
-// Answer: TODO
+// Answer: We should use preserve on sharpen and emboss because their purpose is to add an effect to the image
+// whereas the highpass filter is designed to look for features in the image where we don't care about color.
+// i.e. an edge between a red and green thing should be treated the same as an edge between a blue and a red thing.
 
 // Question 2.2.2: Do we have to do any post-processing for the above filters? Which ones and why?
 // Answer: TODO
