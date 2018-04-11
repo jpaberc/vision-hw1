@@ -35,41 +35,120 @@ image convolve_image(image im, image filter, int preserve)
 {
     assert(filter.c == im.c || filter.c == 1);
 
-    image cim = (preserve == 1) ? make_image(im.w,im.h,im.c) : make_image(im.w,im.h,filter.c);
+    int x,y,c,fx,fy;
+    float q, filter_val, pixel_val;
 
-    for (int x = 0; x < cim.w; x++) {
-        for (int y = 0; y < cim.h; y++) {
-            if (preserve == 1) {
-                for (int c = 0; c < cim.c; c++) {
-                    int fc = (filter.c > 1) ? c : 0;
-                    float q = 0;
-                    for (int fx = 0; fx < filter.w; fx++) {
-                        for (int fy = 0; fy < filter.h; fy++) {
+    image cim = (preserve == 1) ? make_image(im.w,im.h,im.c) : make_image(im.w,im.h,1);
 
-                            q += get_pixel(filter,fx,fy,fc) * get_pixel(im,x-(filter.w/2)+fx,y-(filter.h/2)+fy,c);
+    if (im.c == filter.c) {
+        if (preserve == 0) {
+            for (y = 0; y < cim.h; y++) {
+                for (x = 0; x < cim.w; x++) {
+                    q = 0;
+                    for (c = 0; c < im.c; c++) {
+                        for (fy = 0; fy < filter.h; fy++) {
+                            for (fx = 0; fx < filter.w; fx++) {
+                                filter_val = get_pixel(filter,fx,fy,c);
+                                pixel_val = get_pixel(im, x-(filter.w/2)+fx, y-(filter.h/2)+fy,c) ;
+                                q += filter_val*pixel_val;
+                            }
                         }
                     }
-                    set_pixel(cim,x,y,c,q);
-                }
-            } else {
-                float q = 0;
-                for (int c = 0; c < im.c; c++) {
-                    int fc = (filter.c > 1) ? c : 0;
-                    for (int fx = 0; fx < filter.w; fx++) {
-                        for (int fy = 0; fy < filter.h; fy++) {
-                            q += get_pixel(filter,fx,fy,fc) * get_pixel(im,x-(filter.w/2)+fx,y-(filter.h/2)+fy,c);
-                        }
-                    }
-                }
-                if (filter.c == im.c) {
+                    q = (q > 0.0) ? ((q < 1.0) ? q : 1.0) : 0.0;
                     set_pixel(cim,x,y,0,q);
                 }
-                else {
-                    set_pixel(cim,x,y,0,q/im.c);
+            }
+        }
+        else {
+            for (y = 0; y < cim.h; y++) {
+                for (x = 0; x < cim.w; x++) {
+                    for (c = 0; c < im.c; c++) {
+                        q = 0;
+                        for (fy = 0; fy < filter.h; fy++) {
+                            for (fx = 0; fx < filter.w; fx++) {
+                                filter_val = get_pixel(filter,fx,fy,c);
+                                pixel_val = get_pixel(im, x-(filter.w/2)+fx, y-(filter.h/2)+fy,c);
+                                q += filter_val*pixel_val;
+                            }
+                        }
+                        q = (q > 0.0) ? ((q < 1.0) ? q : 1.0) : 0.0;
+                        set_pixel(cim,x,y,c,q);
+                    }
+                }
+            }
+        }
+    } else {
+        if (preserve == 0) {
+            for (y = 0; y < cim.h; y++) {
+                for (x = 0; x < cim.w; x++) {
+                    q = 0;
+                    for (c = 0; c < im.c; c++) {
+                        for (fy = 0; fy < filter.h; fy++) {
+                            for (fx = 0; fx < filter.w; fx++) {
+                                filter_val = get_pixel(filter,fx,fy,0);
+                                pixel_val = get_pixel(im, x-(filter.w/2)+fx, y-(filter.h/2)+fy,c) ;
+                                q += filter_val*pixel_val;
+                            }
+                        }
+                    }
+                    q = q / im.c;
+                    q = (q > 0.0) ? ((q < 1.0) ? q : 1.0) : 0.0;
+                    set_pixel(cim,x,y,0,q);
+                }
+            }
+        } else {
+            for (y = 0; y < cim.h; y++) {
+                for (x = 0; x < cim.w; x++) {
+                    for (c = 0; c < im.c; c++) {
+                        q = 0;
+                        for (fy = 0; fy < filter.h; fy++) {
+                            for (fx = 0; fx < filter.w; fx++) {
+                                filter_val = get_pixel(filter,fx,fy,0);
+                                pixel_val = get_pixel(im, x-(filter.w/2)+fx, y-(filter.h/2)+fy,c);
+                                q += filter_val*pixel_val;
+                            }
+                        }
+                        q = (q > 0.0) ? ((q < 1.0) ? q : 1.0) : 0.0;
+                        set_pixel(cim,x,y,c,q);
+                    }
                 }
             }
         }
     }
+
+    // for (int x = 0; x < cim.w; x++) {
+    //     for (int y = 0; y < cim.h; y++) {
+    //         if (preserve == 1) {
+    //             for (int c = 0; c < cim.c; c++) {
+    //                 int fc = (filter.c > 1) ? c : 0;
+    //                 float q = 0;
+    //                 for (int fx = 0; fx < filter.w; fx++) {
+    //                     for (int fy = 0; fy < filter.h; fy++) {
+
+    //                         q += get_pixel(filter,fx,fy,fc) * get_pixel(im,x-(filter.w/2)+fx,y-(filter.h/2)+fy,c);
+    //                     }
+    //                 }
+    //                 set_pixel(cim,x,y,c,q);
+    //             }
+    //         } else {
+    //             float q = 0;
+    //             for (int c = 0; c < im.c; c++) {
+    //                 int fc = (filter.c > 1) ? c : 0;
+    //                 for (int fx = 0; fx < filter.w; fx++) {
+    //                     for (int fy = 0; fy < filter.h; fy++) {
+    //                         q += get_pixel(filter,fx,fy,fc) * get_pixel(im,x-(filter.w/2)+fx,y-(filter.h/2)+fy,c);
+    //                     }
+    //                 }
+    //             }
+    //             if (filter.c == im.c) {
+    //                 set_pixel(cim,x,y,0,q);
+    //             }
+    //             else {
+    //                 set_pixel(cim,x,y,0,q/im.c);
+    //             }
+    //         }
+    //     }
+    // }
 
     return cim;
 }
@@ -78,13 +157,13 @@ image make_highpass_filter()
 {
     image f = make_box_filter(3);
     set_pixel(f,0,0,0,0);
-    set_pixel(f,1,0,0,-1);
+    set_pixel(f,1,0,0,-1.);
     set_pixel(f,2,0,0,0);
-    set_pixel(f,0,1,0,-1);
-    set_pixel(f,1,1,0,4);
-    set_pixel(f,2,1,0,-1);
+    set_pixel(f,0,1,0,-1.);
+    set_pixel(f,1,1,0,4.);
+    set_pixel(f,2,1,0,-1.);
     set_pixel(f,0,2,0,0);
-    set_pixel(f,1,2,0,-1);
+    set_pixel(f,1,2,0,-1.);
     set_pixel(f,2,2,0,0);
     return f;
 }
@@ -125,7 +204,8 @@ image make_emboss_filter()
 // i.e. an edge between a red and green thing should be treated the same as an edge between a blue and a red thing.
 
 // Question 2.2.2: Do we have to do any post-processing for the above filters? Which ones and why?
-// Answer: TODO
+// Answer: We need to do post-processing for any filter which does not sum to 0 (e.g. sharpen,emboss),
+// because otherwise we may end up with pixel values >1 if sum is + or <0 if sum is -.
 
 image make_gaussian_filter(float sigma)
 {
