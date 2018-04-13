@@ -91,7 +91,7 @@ image convolve_image(image im, image filter, int preserve)
                             }
                         }
                     }
-                    q = q / im.c;
+                    // q = q / im.c;
                     // q = (q > 0.0) ? ((q < 1.0) ? q : 1.0) : 0.0;
                     set_pixel(cim,x,y,0,q);
                 }
@@ -157,13 +157,13 @@ image make_highpass_filter()
 {
     image f = make_box_filter(3);
     set_pixel(f,0,0,0,0);
-    set_pixel(f,1,0,0,-1.);
+    set_pixel(f,1,0,0,-1);
     set_pixel(f,2,0,0,0);
-    set_pixel(f,0,1,0,-1.);
-    set_pixel(f,1,1,0,4.);
-    set_pixel(f,2,1,0,-1.);
+    set_pixel(f,0,1,0,-1);
+    set_pixel(f,1,1,0,4);
+    set_pixel(f,2,1,0,-1);
     set_pixel(f,0,2,0,0);
-    set_pixel(f,1,2,0,-1.);
+    set_pixel(f,1,2,0,-1);
     set_pixel(f,2,2,0,0);
     return f;
 }
@@ -328,7 +328,7 @@ image *sobel_image(image im)
     for (int y = 0; y < im.h; y++) {
         for (int x = 0; x < im.w; x++) {
             float mag = sqrtf( powf(get_pixel(xsobel,x,y,0),2) + powf(get_pixel(ysobel,x,y,0),2) );
-            float dir = atanf(get_pixel(ysobel,x,y,0) / get_pixel(xsobel,x,y,0));
+            float dir = atan2f(get_pixel(ysobel,x,y,0), get_pixel(xsobel,x,y,0));
             set_pixel(sobel[0],x,y,0,mag);
             set_pixel(sobel[1],x,y,0,dir);
         }
